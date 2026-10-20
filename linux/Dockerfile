@@ -1,10 +1,9 @@
 # Dev container for the Linux GTK4/libadwaita shell.
-# Ubuntu 26.04 ships a recent packaged Rust toolchain; rustup's x86_64 rustc
-# currently crashes under Docker/QEMU on Apple Silicon release hosts.
+# Ubuntu 24.04 base keeps glibc at 2.39 so the binary runs on current LTS hosts.
 # Runs Xvfb + fluxbox + x11vnc so the app window is reachable from the host on
 # vnc://localhost:5900 (no password).
 
-FROM ubuntu:26.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
@@ -20,8 +19,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         git \
-        rustc \
-        cargo \
         libgtk-4-dev \
         libadwaita-1-dev \
         libssl-dev \
@@ -42,6 +39,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         fonts-noto-color-emoji \
         adwaita-icon-theme \
     && rm -rf /var/lib/apt/lists/*
+
+# Ubuntu 24.04's apt rustc (1.75) is too old for this codebase; use rustup.
+RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable
 
 ARG INSTALL_CARGO_WATCH=1
 RUN mkdir -p "$CARGO_HOME" \

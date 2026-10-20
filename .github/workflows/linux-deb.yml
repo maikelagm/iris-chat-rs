@@ -1,0 +1,21 @@
+name: linux-deb
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Linux release (tarball + deb)
+        run: IRIS_APP_VERSION_NAME="$(date +%Y.%m.%d)" ./scripts/linux-release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iris-chat-linux-x64
+          path: dist/linux/iris-chat-*linux-x64.*
+          if-no-files-found: error
